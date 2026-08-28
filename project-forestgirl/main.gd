@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 		direction -= 1.0
 	if Input.is_key_pressed(KEY_D):
 		direction += 1.0
-	direction = clamp(direction, -1.0, 1.0)
+	direction = clampf(direction, -1.0, 1.0)
 	player_velocity.x = move_toward(player_velocity.x, direction * MOVE_SPEED, 1200.0 * delta)
 	if is_on_surface() and Input.is_action_just_pressed("ui_accept"):
 		player_velocity.y = JUMP_SPEED
@@ -56,7 +56,7 @@ func _physics_process(delta: float) -> void:
 	player_velocity.y += GRAVITY * delta
 	player_pos += player_velocity * delta
 	resolve_surfaces()
-	player_pos.x = clamp(player_pos.x, 20.0, WORLD_END - PLAYER_SIZE.x)
+	player_pos.x = clampf(player_pos.x, 20.0, WORLD_END - PLAYER_SIZE.x)
 
 	if player_pos.y > 760.0:
 		player_pos = Vector2(590.0 if activated else 120.0, FLOOR_Y - PLAYER_SIZE.y)
@@ -92,16 +92,16 @@ func resolve_surfaces() -> void:
 			player_velocity.y = 0.0
 
 func mushroom_platform() -> Rect2:
-	var width := lerp(44.0, 220.0, mushroom_growth)
-	var top := lerp(FLOOR_Y - 34.0, FLOOR_Y - 150.0, mushroom_growth)
+	var width: float = lerpf(44.0, 220.0, mushroom_growth)
+	var top: float = lerpf(FLOOR_Y - 34.0, FLOOR_Y - 150.0, mushroom_growth)
 	return Rect2(Vector2(805.0 - width * 0.5, top), Vector2(width, 18.0))
 
 func in_observation_zone() -> bool:
 	return player_pos.x > 390.0 and player_pos.x < 485.0 and is_on_surface()
 
 func update_camera() -> void:
-	var target := clamp(player_pos.x - 420.0, 0.0, WORLD_END - VIEW_SIZE.x)
-	camera_x = lerp(camera_x, target, 0.08)
+	var target: float = clampf(player_pos.x - 420.0, 0.0, WORLD_END - VIEW_SIZE.x)
+	camera_x = lerpf(camera_x, target, 0.08)
 
 func reset_game() -> void:
 	player_pos = Vector2(120.0, FLOOR_Y - PLAYER_SIZE.y)
@@ -147,7 +147,7 @@ func draw_world() -> void:
 	# Mushroom in reality
 	var p := mushroom_platform()
 	var cap := Rect2(p.position + Vector2(ox, -8.0), p.size)
-	var stem_h := lerp(24.0, 130.0, mushroom_growth)
+	var stem_h: float = lerpf(24.0, 130.0, mushroom_growth)
 	draw_rect(Rect2(Vector2(ox + 795.0, p.position.y + 8.0), Vector2(20.0, stem_h)), Color("#d8d1ad"))
 	draw_rounded_rect(cap, Color("#d57a64"), 12.0)
 	for i in range(4):
@@ -161,8 +161,8 @@ func draw_reflection() -> void:
 		var wave_y := water_y + 12.0 + i * 14.0
 		draw_line(Vector2(0.0, wave_y), Vector2(VIEW_SIZE.x, wave_y), Color(0.36, 0.73, 0.72, 0.08), 2.0)
 	# The reflected mushroom changes apparent size as the player approaches the observation stone.
-	var alignment := clamp(1.0 - abs(player_pos.x - 438.0) / 260.0, 0.0, 1.0)
-	var reflected_scale := 0.35 + alignment * 1.25
+	var alignment: float = clampf(1.0 - absf(player_pos.x - 438.0) / 260.0, 0.0, 1.0)
+	var reflected_scale: float = 0.35 + alignment * 1.25
 	var mx := 805.0 - camera_x
 	draw_line(Vector2(mx, water_y + 8.0), Vector2(mx, water_y + 72.0 * reflected_scale), Color(0.78, 0.83, 0.67, 0.52), 14.0 * reflected_scale)
 	draw_rounded_rect(Rect2(mx - 70.0 * reflected_scale, water_y + 65.0 * reflected_scale, 140.0 * reflected_scale, 18.0 * reflected_scale), Color(0.82, 0.38, 0.32, 0.65), 10.0)
